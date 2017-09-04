@@ -6,7 +6,7 @@ import com.spranga.dropcodechallenge.ui.BeerFragment
 import com.spranga.dropcodechallenge.ui.MainActivity
 import com.spranga.dropcodechallenge.ui.behaviours.Behaviour
 import com.spranga.dropcodechallenge.ui.behaviours.Generator
-import com.spranga.dropcodechallenge.ui.behaviours.HopCoordinator
+import com.spranga.dropcodechallenge.ui.behaviours.HopBehaviour
 import com.spranga.dropcodechallenge.ui.behaviours.HopsGenerator
 import com.spranga.dropcodechallenge.ui.behaviours.MaltsGenerator
 import com.spranga.dropcodechallenge.ui.behaviours.MethodsGenerator
@@ -58,7 +58,7 @@ object BehaviourModule {
   @Provides
   @IntoSet
   @JvmStatic
-  internal fun simpleBehaviou(view: BeerFragment): Behaviour = SimpleBehaviour(view)
+  internal fun simpleBehaviour(view: BeerFragment): Behaviour = SimpleBehaviour(view)
 
   @Provides
   @IntoSet
@@ -69,7 +69,7 @@ object BehaviourModule {
   @Provides
   @IntoSet
   @JvmStatic
-  internal fun hopCoordinator(view: BeerFragment): Behaviour = HopCoordinator(
+  internal fun hopCoordinator(view: BeerFragment): Behaviour = HopBehaviour(
       view)
 }
 

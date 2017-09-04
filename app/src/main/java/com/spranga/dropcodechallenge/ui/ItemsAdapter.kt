@@ -13,10 +13,10 @@ import java.util.Collections
 /**
  * Created by nietzsche on 02/09/17.
  */
-class ItemsAdapter(items: List<ListItem> = Collections.emptyList(),
-    private val listener: (ListItem, Int) -> Unit = { _, _ -> }) : RecyclerView.Adapter<ItemViewHolder>() {
+class ItemsAdapter(items: List<ListItemData> = Collections.emptyList(),
+    private val listener: (ListItemData, Int) -> Unit = { _, _ -> }) : RecyclerView.Adapter<ItemViewHolder>() {
 
-  val items: MutableList<ListItem>
+  val items: MutableList<ListItemData>
 
   init {
     this.items = ArrayList(items)
@@ -31,12 +31,12 @@ class ItemsAdapter(items: List<ListItem> = Collections.emptyList(),
 
   override fun getItemCount(): Int = items.size
 
-  fun update(pos: Int, item: ListItem) {
+  fun update(pos: Int, item: ListItemData) {
     items[pos] = item
     notifyItemChanged(pos)
   }
 
-  fun update(items: MutableList<ListItem>) {
+  fun update(items: MutableList<ListItemData>) {
     this.items.clear()
     this.items.addAll(items)
     notifyDataSetChanged()
@@ -46,9 +46,9 @@ class ItemsAdapter(items: List<ListItem> = Collections.emptyList(),
 }
 
 class ItemViewHolder(itemView: View,
-    private val listener: (ListItem, Int) -> Unit) : RecyclerView.ViewHolder(itemView) {
+    private val listener: (ListItemData, Int) -> Unit) : RecyclerView.ViewHolder(itemView) {
 
-  fun bind(item: ListItem, position: Int) {
+  fun bind(item: ListItemData, position: Int) {
     itemView.item_name.text = "${item.name} ${item.hopAdd ?: ""}"
     itemView.item_action.text = "${item.actionName} ${item.countdownLabel ?: ""}"
     itemView.item_action.setOnClickListener({ listener.invoke(item, position) })
@@ -56,7 +56,7 @@ class ItemViewHolder(itemView: View,
   }
 }
 
-data class ListItem(val name: String, val actionName: String, val type: ListItemType,
+data class ListItemData(val name: String, val actionName: String, val type: ListItemType,
     val duration: Int? = null, val countdownLabel: String? = null, val hopAdd: String? = null)
 
 enum class ListItemType { Hop, Malt, Method }

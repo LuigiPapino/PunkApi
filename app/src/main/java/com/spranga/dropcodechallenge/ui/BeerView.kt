@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.facebook.drawee.drawable.ProgressBarDrawable
-import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder
 import com.spranga.dropcodechallenge.R.layout
 import com.spranga.dropcodechallenge.model.BeerModel
 import com.spranga.dropcodechallenge.network.ApiService
@@ -54,9 +53,8 @@ class BeerFragment : Fragment() {
       presenter.action(it, pos)
     }
     recipe_recycler.adapter = adapter
-    beer_image.hierarchy = GenericDraweeHierarchyBuilder.newInstance(resources)
-        .setProgressBarImage(ProgressBarDrawable())
-        .build()
+    beer_image.hierarchy.setProgressBarImage(ProgressBarDrawable())
+
 
     presenter.start()
 
@@ -73,11 +71,11 @@ class BeerFragment : Fragment() {
   }
 
 
-  fun updateHop(item: ListItem, pos: Int) {
+  fun updateHop(item: ListItemData, pos: Int) {
     adapter.update(pos, item)
   }
 
-  fun loadList(items: MutableList<ListItem>) {
+  fun loadList(items: MutableList<ListItemData>) {
     adapter.update(items)
   }
 
@@ -86,8 +84,9 @@ class BeerFragment : Fragment() {
   }
 
   fun getItems() = adapter.items
-  fun showFlag(it: String) {
+  fun showFlag(it: String?) {
     beer_flag.text = it
+    beer_flag.visibility = if (it == null) View.GONE else View.VISIBLE
   }
 }
 
@@ -102,15 +101,19 @@ class BeerPresenter @Inject constructor(private val view: BeerFragment,
   fun start() {
     disposable = CompositeDisposable()
     disposable += apiService.getRandomBeer().subscribeOn(Schedulers.io()).observeOn(
-        AndroidSchedulers.mainThread()).subscribe({
-      Log.d(MainActivity.TAG, it.toString())
-      loadBeer(it[0])
-    }, { view.showError("Error in retrieving the beer") })
+        AndroidSchedulers.mainThread())
+        .subscribe({
+          Log.d(MainActivity.TAG, it.toString())
+          loadBeer(it[0])
+        },
+            {
+              view.showError("Error in retrieving the beer")
+            })
   }
 
   private fun loadBeer(beer: BeerModel) {
     view.bind(beer.image_url, "${beer.name} ABV:${beer.abv} IBU:${beer.ibu ?: "none"}")
-    val items: MutableList<ListItem> = ArrayList()
+    val items: MutableList<ListItemData> = ArrayList()
     generators.forEach({
       items.addAll(it.generate(beer))
     })
@@ -125,7 +128,7 @@ class BeerPresenter @Inject constructor(private val view: BeerFragment,
       flag = "Bitter"
     }
 
-    flag?.let { view.showFlag(it) }
+    view.showFlag(flag)
   }
 
 
@@ -133,14 +136,14 @@ class BeerPresenter @Inject constructor(private val view: BeerFragment,
     disposable.dispose()
   }
 
-  fun action(item: ListItem, pos: Int) {
+  fun action(item: ListItemData, pos: Int) {
     behaviours.asSequence()
         .filter { it.shouldApply(item) }
         .forEach({ it.action(items, pos) })
   }
 
 
-  private val items: List<ListItem>
+  private val items: List<ListItemData>
     get() = view.getItems()
 
 }

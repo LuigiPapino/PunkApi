@@ -6,9 +6,8 @@ import com.spranga.dropcodechallenge.ui.ButtonState.IDLE
 import com.spranga.dropcodechallenge.ui.ButtonState.PAUSED
 import com.spranga.dropcodechallenge.ui.ButtonState.RUNNING
 import com.spranga.dropcodechallenge.ui.ButtonState.valueOf
-import com.spranga.dropcodechallenge.ui.ListItem
+import com.spranga.dropcodechallenge.ui.ListItemData
 import com.spranga.dropcodechallenge.ui.ListItemType
-import com.spranga.dropcodechallenge.ui.ListItemType.Hop
 import com.spranga.dropcodechallenge.ui.ListItemType.Malt
 import com.spranga.dropcodechallenge.ui.ListItemType.Method
 import com.spranga.dropcodechallenge.utils.CountDownTimerWithPause
@@ -20,20 +19,17 @@ import com.spranga.dropcodechallenge.utils.CountDownTimerWithPause
 interface Behaviour {
 
   val view: BeerFragment
-  fun action(items: List<ListItem>, pos: Int)
-  fun shouldApply(item: ListItem): Boolean
+  fun action(items: List<ListItemData>, pos: Int)
+  fun shouldApply(item: ListItemData): Boolean
 
 }
 
 
 class SimpleBehaviour(override val view: BeerFragment) : Behaviour {
-  override fun shouldApply(item: ListItem) = when (item.type) {
-    Hop -> false
-    Malt -> true
-    Method -> false
-  }
+  override fun shouldApply(
+      item: ListItemData) = item.type == Malt || (item.type == Method && item.duration == null)
 
-  override fun action(items: List<ListItem>, pos: Int) {
+  override fun action(items: List<ListItemData>, pos: Int) {
     val state = DONE
     view.updateHop(items[pos].copy(actionName = state.toString()), pos)
   }
@@ -41,16 +37,10 @@ class SimpleBehaviour(override val view: BeerFragment) : Behaviour {
 
 
 class TimerBehaviour(override val view: BeerFragment) : Behaviour {
-  override fun shouldApply(item: ListItem) = when (item.type) {
-    Hop -> false
-    Malt -> false
-    Method -> item.duration != null
-  }
-
-  override fun action(items: List<ListItem>, pos: Int) {
+  override fun shouldApply(item: ListItemData) = item.type == Method && item.duration != null
+  override fun action(items: List<ListItemData>, pos: Int) {
     val item = items[pos]
     val state = valueOf(item.actionName)
-
     val newState = when (state) {
       IDLE -> {
         countdownMap[pos] = object : CountDownTimerWithPause(item.duration?.times(1000L) ?: 0L,
@@ -65,7 +55,6 @@ class TimerBehaviour(override val view: BeerFragment) : Behaviour {
             val newItem = item.copy(actionName = DONE.toString(), countdownLabel = null)
             view.updateHop(newItem, pos)
           }
-
         }
         countdownMap[pos]?.create()
         RUNNING
@@ -93,9 +82,9 @@ class TimerBehaviour(override val view: BeerFragment) : Behaviour {
 }
 
 
-class HopCoordinator(override val view: BeerFragment) : Behaviour {
+class HopBehaviour(override val view: BeerFragment) : Behaviour {
 
-  override fun action(items: List<ListItem>, pos: Int) {
+  override fun action(items: List<ListItemData>, pos: Int) {
     val item = items[pos]
 
     val itemAdd = item.hopAdd
@@ -107,7 +96,9 @@ class HopCoordinator(override val view: BeerFragment) : Behaviour {
     }
 
     if (targetAdd != null) {
-      val completed = items.asSequence().filter { it.hopAdd != null && it.hopAdd.contentEquals(targetAdd) }.all { it.actionName == DONE.toString() }
+      val completed = items.asSequence()
+          .filter { it.hopAdd != null && it.hopAdd.contentEquals(targetAdd) }
+          .all { it.actionName == DONE.toString() }
       if (!completed) {
         view.showError("Not all previous hops are done")
         return
@@ -117,7 +108,7 @@ class HopCoordinator(override val view: BeerFragment) : Behaviour {
 
   }
 
-  override fun shouldApply(item: ListItem): Boolean {
+  override fun shouldApply(item: ListItemData): Boolean {
     return item.type == ListItemType.Hop
   }
 
