@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    >
+
+  <com.facebook.drawee.view.SimpleDraweeView
+      android:id="@+id/beer_image"
+      android:layout_width="match_parent"
+      android:layout_height="300dp"
+      android:background="@color/colorPrimary"
+      app:actualImageScaleType="centerInside"
+      />
+
+  <TextView
+      android:id="@+id/beer_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+      app:layout_constraintBottom_toBottomOf="@id/beer_image"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      tools:text="Hello"
+      android:background="#B0FFFFFF"
+      />
+
+  <TextView
+      android:id="@+id/beer_flag"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+      app:layout_constraintRight_toRightOf="parent"
+      tools:text="Hello"
+      android:background="#B0FFFFFF"
+      />
+
+  <TextView
+      android:id="@+id/beer_recipe_label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Recipe"
+      android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/beer_image"
+      />
+
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/recipe_recycler"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/beer_recipe_label"
+      />
+
+
+</android.support.constraint.ConstraintLayout>
